@@ -1,11 +1,15 @@
-'use client'
-import axios from 'axios';
-import { useParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+"use client";
+import { Button } from "@/components/ui/button";
+import axios from "axios";
+import { useParams, useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 const Mitra = () => {
   const { id } = useParams();
   const [data, setData] = useState<any>({});
+  const [linkLoading, setLinkLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   useEffect(() => {
     fetchData();
@@ -17,45 +21,81 @@ const Mitra = () => {
         `https://api.kampusmerdeka.kemdikbud.go.id/magang/browse/opportunities/${id}`
       );
       const newData = response.data.data;
-      console.log(newData)
+      console.log(newData);
       setData(newData);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     }
-  }
+  };
   const formatSalaryToRupiah = (salary: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(salary);
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(salary);
   };
 
-  return (  
-    <div className="container mx-auto px-4 py-6">
-    <h1 className="text-3xl font-bold mb-4">Detail Pekerjaan</h1>
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-bold mb-2">{data.name}</h2>
-      {/* <p className="text-gray-600 mb-4">{data.description}</p> */}
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <p className="font-bold">Kuota:</p>
-          <p>{data.quota}</p>
-        </div>
-        <div>
-          <p className="font-bold">Gaji:</p>
-          {data.benefits && (
-              <p>{formatSalaryToRupiah(data.benefits.salary)}</p>
-            )}
+  const back = () => {
+    setLinkLoading(true);
+    if (linkLoading === true) {
+      router.push('/');
+    } else {
+      router.push('/');
+    }
+  }
+
+  return (
+    <div className="container py-4 ">
+      <div className="flex">
+        <div className="">
+          <Button onClick={back}>
+              <ChevronLeft className="h-4 w-4" />
+            
+          </Button>
         </div>
       </div>
-      <a 
-        href={data.web_portal} 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
-      >
-        Lihat Detail
-      </a>
+      {linkLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50 gap-4">
+          <div className="h-8 w-8 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="h-8 w-8 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="h-8 w-8 bg-white rounded-full animate-bounce"></div>
+        </div>
+      )}
+
+      <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+        <h2 className="text-xl font-bold mb-2">{data.name}</h2>
+        {/* <p className="text-gray-600 mb-4">{data.description}</p> */}
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <p className="font-bold">Kuota:</p>
+            <p>{data.quota}</p>
+          </div>
+          <div>
+            <p className="font-bold">Gaji:</p>
+            {data.benefits && data.benefits.salary ? (
+              <p>{formatSalaryToRupiah(data.benefits.salary)}</p>
+            ) : (
+              <p>Tidak menampilkan gaji</p>
+            )}
+          </div>
+        </div>
+        {data.web_portal ? (
+
+        <a
+          href={data.web_portal}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
+        >
+          Lihat Detail
+        </a>
+        ): (
+          <p>Tidak ada keterangan web portal</p>
+        )}
+          
+          
+      </div>
     </div>
-  </div>
-  )
-}
+  );
+};
 
 export default Mitra;

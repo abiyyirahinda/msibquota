@@ -1,16 +1,22 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Input } from "./ui/input";
 import axios from "axios";
-import { Button } from "./ui/button";
+
 import { useRouter } from "next/navigation";
 
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
+
 const List = () => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>(
+    localStorage.getItem("searchQuery") || ""
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [opportunities, setOpportunities] = useState<any[]>([]);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const [linkLoading, setLinkLoading] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,8 +58,12 @@ const List = () => {
     console.log(
       `Tautan untuk mitra dengan Mitra ID ${mitraId} dengan id ${id} telah diklik`
     );
-
-    router.push(`/mitra/${mitraId}/${id}`);
+    setLinkLoading(true);
+    if (linkLoading === true) {
+      router.push(`/mitra/${mitraId}/${id}`);
+    } else {
+      router.push(`/mitra/${mitraId}/${id}`);
+    }
   };
 
   const handleScroll = () => {
@@ -68,29 +78,54 @@ const List = () => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchQuery(query);
+    localStorage.setItem("searchQuery", query);
   };
 
   return (
-    <div className="container space-y-5 py-5">
-      <div className="flex gap-4">
+    <div className="container py-5">
+      <div className="">
         <Input
           placeholder="Mau Posisi APA NIH OSSSS????"
           value={searchQuery}
           onChange={handleSearchChange}
-          className="w-full md:w-1/2 px-2"
+          className="w-full"  
         />
-        <Button
-          className="text-white font-bold rounded-xmd"
-          onClick={handleSearchSubmit}
-        >
-          Search
-        </Button>
       </div>
-      <ul className="space-y-5">
+      {loading && (
+        <ul className="space-y-5 mt-4">
+          {[...Array(10)].map((_, index) => (
+            <li
+              key={index}
+              className="border rounded-xl p-4 shadow-md flex flex-col cursor-pointer"
+            >
+              <div className="flex">
+                <div className="w-[50px]">
+                  <Skeleton className="h-[42px] w-[42px] rounded-full" />
+                </div>
+                <div className="px-2 w-full space-y-3">
+                  <Skeleton className="h-[20px] w-[100%] rounded-full" />
+                  <Skeleton className="h-[20px] w-[100%] rounded-full" />
+                  <Skeleton className="h-[20px] w-[70%] rounded-full" />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {linkLoading && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50 gap-4">
+          <div className="h-8 w-8 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+          <div className="h-8 w-8 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+          <div className="h-8 w-8 bg-white rounded-full animate-bounce"></div>
+        </div>
+      )}
+
+      <ul className="space-y-5 mt-4 grid grid-cols-1 sm:grid-cols-2 sm:gap-4">
         {opportunities.map((opportunity, index) => (
           <li
             key={index}
-            className="border rounded-xl p-4 shadow-md flex flex-col cursor-pointer"
+            className="border rounded-xl p-4 shadow-md flex flex-col cursor-pointer "
             onClick={() =>
               handleLinkClick(opportunity.mitra_id, opportunity.id)
             }
@@ -102,21 +137,15 @@ const List = () => {
               <div className="px-2 w-full">
                 <p className="font-semibold">{opportunity.name}</p>
                 <p className="text-sm">{opportunity.mitra_name}</p>
-                <p className="text-sm">{opportunity.location} <span>({opportunity.activity_type})</span></p>
-                <p className="text-sm text-slate-500">{opportunity.months_duration} Bulan</p>
+                <p className="text-sm">
+                  {opportunity.location}{" "}
+                  <span>({opportunity.activity_type})</span>
+                </p>
+                <p className="text-sm text-slate-500">
+                  {opportunity.months_duration} Bulan
+                </p>
               </div>
             </div>
-            {/* <div className="flex justify-center mb-2">
-              <img src={opportunity.logo} alt="Logo" className="w-20" />
-            </div>
-            <div>
-              <p className="font-bold">{opportunity.name}</p>
-              <p>{opportunity.mitra_name}</p>
-              <p>Tipe Magang: {opportunity.opportunity_type}</p>
-              <p>Tipe Aktivitas: {opportunity.activity_type}</p>
-              <p>Lokasi: {opportunity.location}</p>
-              <p>Durasi (bulan): {opportunity.months_duration}</p>
-            </div> */}
           </li>
         ))}
       </ul>
