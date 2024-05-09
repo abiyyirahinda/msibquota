@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, } from "react";
 import axios from "axios";
 
 import { useRouter } from "next/navigation";
@@ -10,8 +10,9 @@ import { Skeleton } from "./ui/skeleton";
 
 const List = () => {
   const [searchQuery, setSearchQuery] = useState<string>(
-    localStorage.getItem("searchQuery") || ""
+    typeof window !== 'undefined' ? localStorage.getItem("searchQuery") || "" : ""
   );
+  
   const [loading, setLoading] = useState<boolean>(true);
   const [opportunities, setOpportunities] = useState<any[]>([]);
   const [page, setPage] = useState<number>(1);
