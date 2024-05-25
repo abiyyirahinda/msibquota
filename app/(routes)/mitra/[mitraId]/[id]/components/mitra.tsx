@@ -18,7 +18,7 @@ const Mitra = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(
-        `https://api.kampusmerdeka.kemdikbud.go.id/magang/browse/opportunities/${id}`
+        `https://api.kampusmerdeka.kemdikbud.go.id/magang/browse/position/${id}`
       );
       const newData = response.data.data;
       console.log(newData);
@@ -66,19 +66,23 @@ const Mitra = () => {
         {/* <p className="text-gray-600 mb-4">{data.description}</p> */}
         <div className="flex justify-between items-center mb-4">
           <div>
-            <p className="font-bold">Kuota:</p>
-            <p>{data.quota}</p>
+            <p className="font-bold">Available:</p>
+            <p>{data.available_to_apply ? "Masih bisa daftar" : "false"}</p>
           </div>
           <div>
+            <p className="font-bold">Kuota?:</p>
+            <p>{data.is_quota_full ? "Dah penuh" : "Belom penuh"}</p>
+          </div>
+          {/* <div>
             <p className="font-bold">Gaji:</p>
             {data.benefits && data.benefits.salary ? (
               <p>{formatSalaryToRupiah(data.benefits.salary)}</p>
             ) : (
               <p>Tidak menampilkan gaji</p>
             )}
-          </div>
+          </div> */}
         </div>
-        {data.web_portal ? (
+        {/* {data.web_portal ? (
 
         <a
           href={data.web_portal}
@@ -90,7 +94,7 @@ const Mitra = () => {
         </a>
         ): (
           <p>Tidak ada keterangan web portal</p>
-        )}
+        )} */}
           
           
       </div>
